@@ -99,24 +99,30 @@ with open(settings_path, "w", encoding="utf-8") as f:
     f.write("\n")
 
 # 3. Register repo's plugins/ directory in ~/.gemini/config/plugins.json
-home = os.path.abspath(os.path.expanduser("~"))
+#    Must use an absolute path: agy rejects "~/" paths in global plugins.json.
 plugins_dir_abs = os.path.abspath(os.path.join(repo_dir, "plugins"))
-if plugins_dir_abs.startswith(home + os.sep):
-    plugins_dir_ref = "~/" + os.path.relpath(plugins_dir_abs, home)
-else:
-    plugins_dir_ref = plugins_dir_abs
 
 plugins_cfg = load_json(plugins_json_path)
-entries = plugins_cfg.get("entries")
-if not isinstance(entries, list):
-    entries = []
+raw_entries = plugins_cfg.get("entries")
+if not isinstance(raw_entries, list):
+    raw_entries = []
 
-already = any(
-    isinstance(e, dict) and e.get("path") in (plugins_dir_ref, plugins_dir_abs)
-    for e in entries
-)
+entries = []
+already = False
+for e in raw_entries:
+    if isinstance(e, dict) and isinstance(e.get("path"), str) and e["path"].startswith(("~/", "/")):
+        expanded = os.path.abspath(os.path.expanduser(e["path"]))
+        if expanded == plugins_dir_abs:
+            if not already:
+                updated = dict(e)
+                updated["path"] = plugins_dir_abs
+                entries.append(updated)
+                already = True
+            continue
+    entries.append(e)
+
 if not already:
-    entries.append({"path": plugins_dir_ref})
+    entries.append({"path": plugins_dir_abs})
 plugins_cfg["entries"] = entries
 
 with open(plugins_json_path, "w", encoding="utf-8") as f:

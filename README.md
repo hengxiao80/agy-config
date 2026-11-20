@@ -33,7 +33,7 @@ agy-config/
 What `setup.sh` configures:
 - Symlinks `cli/statusline.sh` → `~/.gemini/antigravity-cli/statusline.sh`
 - Merges `cli/settings.base.json` + `cli/machines/<hostname>.json` into `~/.gemini/antigravity-cli/settings.json` (preserving any existing keys and deduplicating permission/workspace lists)
-- Registers `~/agy-config/plugins` in `~/.gemini/config/plugins.json` so `git pull` updates hooks and global rules live across all projects
+- Registers `<repo>/plugins` (by absolute path) in `~/.gemini/config/plugins.json` so `git pull` updates hooks and global rules live across all projects
 
 ## Opt-In Per-Project Session Tracking
 
@@ -43,4 +43,8 @@ The `personal-kit` plugin's lifecycle hook automatically maintains `<project>/ag
 mkdir -p /path/to/project/agy
 ```
 
-Projects without an `agy/` directory are untouched. Any manual edits to the `Name` column in `sessions.md` are preserved across updates.
+Projects without an `agy/` directory are untouched. `sessions.md` is fully auto-generated from Antigravity's local session database (`conversation_summaries.db`) and transcripts — including session titles and retroactive backfill — so it should not be edited manually. You can also trigger a one-off backfill with:
+
+```bash
+python3 -B ~/agy-config/plugins/personal-kit/update_sessions.py --sync /path/to/project
+```

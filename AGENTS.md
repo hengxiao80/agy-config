@@ -35,8 +35,8 @@ Shared Antigravity CLI (`agy`) configuration, custom status line, and the global
   - **Fail open:** Always catch unexpected exceptions, exit `0`, and print valid JSON to `stdout` (`{"decision": "allow"}` when `hookEventName == "Stop"`, `{}` otherwise) so hook errors never stall or break `agy`.
 - **Session Indexer (`update_sessions.py`):**
   - **Opt-in only:** Only create or update `<project>/agy/<short-hostname>/sessions.md` when `<project>/agy/` already exists (walking up from `cwd` / `workspacePaths` and stopping at `.git`, `$HOME`, or `/`).
-  - Skip zero-turn sessions on `SessionStart` when no transcript timestamps exist yet.
-  - Preserve user-edited `Name` column values when parsing/rendering `sessions.md`, and write updates atomically (`tempfile.mkstemp` + `os.replace`) only when content changes.
+  - Syncs all non-empty top-level sessions for the project (and their titles) read-only from `conversation_summaries.db` + O(1) head/tail scans of `transcript.jsonl`, skipping zero-turn sessions and subagents.
+  - `sessions.md` is fully auto-generated (not manually edited) and written atomically (`tempfile.mkstemp` + `os.replace`) only when content changes. Supports `--sync <project_dir>` for manual one-off backfill.
 
 ## Verification (Sandboxed)
 
