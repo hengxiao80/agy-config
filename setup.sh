@@ -3,15 +3,22 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GEMINI_DIR="${HOME}/.gemini"
+BIN_DIR=""
+CUSTOM_GEMINI_DIR=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --gemini-dir)
       GEMINI_DIR="$2"
+      CUSTOM_GEMINI_DIR=1
+      shift 2
+      ;;
+    --bin-dir)
+      BIN_DIR="$2"
       shift 2
       ;;
     -h|--help)
-      echo "Usage: $0 [--gemini-dir <path>]"
+      echo "Usage: $0 [--gemini-dir <path>] [--bin-dir <path>]"
       exit 0
       ;;
     *)
@@ -21,15 +28,27 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ -z "${BIN_DIR}" ]]; then
+  if [[ "${CUSTOM_GEMINI_DIR}" -eq 1 ]]; then
+    BIN_DIR="${GEMINI_DIR}/bin"
+  else
+    BIN_DIR="${HOME}/.local/bin"
+  fi
+fi
+
 CLI_DIR="${GEMINI_DIR}/antigravity-cli"
 CFG_DIR="${GEMINI_DIR}/config"
 HOST_NAME="$(hostname -s 2>/dev/null || hostname | cut -d. -f1)"
 
-mkdir -p "${CLI_DIR}" "${CFG_DIR}"
-chmod +x "${REPO_DIR}/cli/statusline.sh" "${REPO_DIR}/plugins/personal-kit/update_sessions.py"
+mkdir -p "${CLI_DIR}" "${CFG_DIR}" "${BIN_DIR}"
+chmod +x \
+  "${REPO_DIR}/cli/statusline.sh" \
+  "${REPO_DIR}/plugins/personal-kit/update_sessions.py" \
+  "${REPO_DIR}/tools/agy-sessions/agy-sessions"
 
-# 1. Symlink statusline.sh (safe to symlink: agy executes it without rewriting it)
+# 1. Symlink statusline.sh and agy-sessions CLI
 ln -sfn "${REPO_DIR}/cli/statusline.sh" "${CLI_DIR}/statusline.sh"
+ln -sfn "${REPO_DIR}/tools/agy-sessions/agy-sessions" "${BIN_DIR}/agy-sessions"
 
 # 2. Merge settings.base.json + optional machines/<HOST>.json into settings.json
 #    (written as a regular file because agy atomically replaces settings.json on /config saves)
@@ -132,6 +151,7 @@ PY
 
 echo "Configured Antigravity for host '${HOST_NAME}':"
 echo "  - Linked status line : ${CLI_DIR}/statusline.sh -> ${REPO_DIR}/cli/statusline.sh"
+echo "  - Linked CLI tool    : ${BIN_DIR}/agy-sessions -> ${REPO_DIR}/tools/agy-sessions/agy-sessions"
 echo "  - Merged CLI settings: ${CLI_DIR}/settings.json"
 if [[ -f "${REPO_DIR}/cli/machines/${HOST_NAME}.json" ]]; then
   echo "    (included host overrides from cli/machines/${HOST_NAME}.json)"
