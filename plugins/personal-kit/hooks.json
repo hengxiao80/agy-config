@@ -1,0 +1,25 @@
+{
+  "session-index": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "python3 -B ./update_sessions.py",
+        "timeout": 5
+      }
+    ],
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python3 -B ./update_sessions.py",
+        "timeout": 5
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 -B ./update_sessions.py",
+        "timeout": 5
+      }
+    ]
+  }
+}

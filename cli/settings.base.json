@@ -1,0 +1,27 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/settings.json",
+  "agentMode": "accept-edits",
+  "enableTerminalSandbox": true,
+  "toolPermission": "always-proceed",
+  "permissions": {
+    "allow": [
+      "command(git)"
+    ],
+    "ask": [
+      "command(git commit)",
+      "command(git push)"
+    ],
+    "deny": [
+      "command(regex:git push( .*)? (-f|--force)( .*)?)",
+      "command(rm -rf)",
+      "command(sudo)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.gemini/antigravity-cli/statusline.sh",
+    "enabled": true,
+    "padding": 0,
+    "stack_with_default": false
+  }
+}

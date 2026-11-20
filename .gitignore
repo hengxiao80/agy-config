@@ -1,0 +1,7 @@
+# macOS & editor artifacts
+.DS_Store
+._*
+*.swp
+*.tmp
+__pycache__/
+*.pyc
