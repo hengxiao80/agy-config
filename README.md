@@ -22,7 +22,7 @@ agy-config/
         ├── hooks.json                    # SessionStart, PreInvocation, and Stop hooks
         ├── update_sessions.py            # Fail-open hook shim invoking tools/agy-sessions
         └── rules/
-            └── AGENTS.md                 # Global git commit/push approval & sandbox rules
+            └── AGENTS.md                 # Global git, working/answer style & Typora Markdown rules
 ```
 
 ## Setup on Any Machine
